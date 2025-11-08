@@ -1,0 +1,5 @@
+blueocean
+# https://plugins.jenkins.io/job-dsl/
+job-dsl
+# https://docs.cloudbees.com/docs/cloudbees-ci/latest/pipelines/docker-workflow
+docker-workflow

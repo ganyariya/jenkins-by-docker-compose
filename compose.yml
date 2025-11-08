@@ -1,0 +1,16 @@
+services:
+  jenkins-controller:
+    build:
+      # https://docs.docker.com/reference/compose-file/build/#context
+      context: ./jenkins-controller
+      dockerfile: Dockerfile # [context = ./jenkins-controller]/Dockerfile
+    image: jenkins-controller-image
+    container_name: jenkins-controller-container
+    ports:
+      # 8081 = your pc port, 8080 = jenkins-controller port in container
+      - 8081:8080
+      - 50000:50000
+    volumes:
+      - ./jenkins-controller-data:/var/jenkins_home
+    # run container as `jenkins` user
+    user: jenkins
