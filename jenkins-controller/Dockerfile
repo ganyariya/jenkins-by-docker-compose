@@ -12,6 +12,10 @@ RUN apt-get update && apt-get install -y lsb-release ca-certificates curl && \
     apt-get update && apt-get install -y docker-ce-cli && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# add jenkins user to root group
+# because jenkins want to access /var/run/docker.sock
+RUN gpasswd -a jenkins root
+
 USER jenkins
 COPY jenkins_plugins.txt /usr/share/jenkins/ref/jenkins_plugins.txt
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/jenkins_plugins.txt
