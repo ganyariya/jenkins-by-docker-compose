@@ -37,7 +37,7 @@ services:
       - jenkins-docker-certs:/certs/client
     environment:
       # https://hub.docker.com/_/docker#tls
-      # dind image creates TLS certificates in DOCKEDR_TLS_CERTDIR
+      # dind image creates TLS certificates in DOCKER_TLS_CERTDIR
       - DOCKER_TLS_CERTDIR=/certs
     networks:
       jenkins-network:
