@@ -5,14 +5,14 @@ PUBLIC_KEY="${PRIVATE_KEY}.pub"
 ENV_FILE=".env"
 
 
-if [ -f $PRIVATE_KEY ]; then
+if [ -f "$PRIVATE_KEY" ]; then
     exit 0
 fi
 
-ssh-keygen -t ed25519 -f $PRIVATE_KEY -N ""
+ssh-keygen -t ed25519 -f "$PRIVATE_KEY" -N ""
 
-if [ ! -f $ENV_FILE ]; then
-    touch .env
+if [ ! -f "$ENV_FILE" ]; then
+    touch "$ENV_FILE"
 fi
 
 KEY=$(cat $PUBLIC_KEY)
