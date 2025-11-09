@@ -3,50 +3,46 @@ services:
     build:
       # https://docs.docker.com/reference/compose-file/build/#context
       context: ./jenkins-controller
-      dockerfile: Dockerfile # [context = ./jenkins-controller]/Dockerfile
+      dockerfile: Dockerfile
     image: jenkins-controller-image
     container_name: jenkins-controller-container
     ports:
-      # 8081 = your pc port, 8080 = jenkins-controller port in container
-      - 8081:8080
-      # 50000 = jenkins agent node connects to the controller on 50000 port
-      - 50000:50000
+      - 8080:8080
+      - 50000:50000 # 50000 = jenkins agent connects to controller on 50000 port
     volumes:
       - ./jenkins-controller-data:/var/jenkins_home
       - jenkins-docker-certs:/certs/client:ro
-    # run container as `jenkins` user
     user: jenkins
     environment:
       # https://docs.docker.jp/compose/reference/envvars.html#docker-host
-      # when jenkins controller run docker command, connect to jenkins-docker -runner by `docker` network alias
-      # use tls connection
-      - DOCKER_HOST=tcp://docker:2376 # mTLS connection with port 2376 of `docker` service
+      # when jenkins controller executes docker pipeline, it connects to `docker` 2376 port with mTLS.
+      - DOCKER_HOST=tcp://docker:2376
       - DOCKER_CERT_PATH=/certs/client
       - DOCKER_TLS_VERIFY=1
     depends_on: 
-      - docker
+      - dind-runner
 
     networks:
       - jenkins-network
 
-  # https://zenn.dev/taku_sid/articles/20250409_docker_patterns
-  # https://qiita.com/t_katsumura/items/d5be6afadd6ec6545a9d
-  # docker in docker
-  docker:
+  # docker in docker pattern
+  dind-runner:
     image: docker:dind
     container_name: jenkins-docker-container
-    privileged: true # for run docker command in docker container
-    expose:
-      - "2376" # for TLS connection
+    privileged: true
+    expose: 
+      - "2376"
     volumes:
       - ./jenkins-controller-data:/var/jenkins_home
       - jenkins-docker-certs:/certs/client
     environment:
       # https://hub.docker.com/_/docker#tls
-      # dind container creates TLS certificates in DOCKEDR_TLS_CERTDIR
+      # dind image creates TLS certificates in DOCKEDR_TLS_CERTDIR
       - DOCKER_TLS_CERTDIR=/certs
     networks:
-      - jenkins-network
+      jenkins-network:
+        aliases:
+          - docker # for DOCKER_HOST=tcp://docker:2376 name resolver
 
 networks:
   jenkins-network:
