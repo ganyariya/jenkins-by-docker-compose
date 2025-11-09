@@ -67,8 +67,11 @@ services:
     volumes:
       # ssh-agent1 上で docker pipeline を実行するには
       # - dind の docker.socket へ通信する
-      # - dind と volume を共有する
+      # - dind と volume を /home/jenkins/agent で共有する
       # 必要がある
+      # その結果 ssh-agent1 と ssh-agent2 両方で docker pipeline を実行しようとすると
+      # dind 上の volume で jenkins-ssh-agent-volume{1,2}: /home/jenkins/agent とする必要があり、不可能となる
+      # よって dind を利用して複数の ssh-agent コンテナで docker pipeline は実行できない
       - jenkins-ssh-agent-volume:/home/jenkins/agent
       - jenkins-docker-certs:/certs/client:ro
   jenkins-ssh-agent2:
