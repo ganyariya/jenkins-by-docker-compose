@@ -1,5 +1,5 @@
 # ref: https://www.jenkins.io/doc/book/installing/docker/#on-macos-and-linux
-FROM jenkins/jenkins:lts-jdk17
+FROM jenkins/jenkins:lts-jdk21
 
 USER root
 RUN apt-get update && apt-get install -y lsb-release ca-certificates curl && \
