@@ -1,1 +1,4 @@
 jenkins-controller-data
+.env
+jenkins_ssh_agent_key
+jenkins_ssh_agent_key.pub
