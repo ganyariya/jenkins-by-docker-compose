@@ -13,13 +13,44 @@ services:
       - 50000:50000
     volumes:
       - ./jenkins-controller-data:/var/jenkins_home
-      # When the jenkins controller attempts to execute a docker pipeline, use the docker daemon running on the host PC.
-      - /var/run/docker.sock:/var/run/docker.sock
+      - jenkins-docker-certs:/certs/client:ro
+    # run container as `jenkins` user
     user: jenkins
+    environment:
+      # https://docs.docker.jp/compose/reference/envvars.html#docker-host
+      # when jenkins controller run docker command, connect to jenkins-docker -runner by `docker` network alias
+      # use tls connection
+      - DOCKER_HOST=tcp://docker:2376 # mTLS connection with port 2376 of `docker` service
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+    depends_on: 
+      - docker
 
+    networks:
+      - jenkins-network
+
+  # https://zenn.dev/taku_sid/articles/20250409_docker_patterns
+  # https://qiita.com/t_katsumura/items/d5be6afadd6ec6545a9d
+  # docker in docker
+  docker:
+    image: docker:dind
+    container_name: jenkins-docker-container
+    privileged: true # for run docker command in docker container
+    expose:
+      - "2376" # for TLS connection
+    volumes:
+      - ./jenkins-controller-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client
+    environment:
+      # https://hub.docker.com/_/docker#tls
+      # dind container creates TLS certificates in DOCKEDR_TLS_CERTDIR
+      - DOCKER_TLS_CERTDIR=/certs
     networks:
       - jenkins-network
 
 networks:
   jenkins-network:
     driver: bridge
+
+volumes:
+  jenkins-docker-certs:
