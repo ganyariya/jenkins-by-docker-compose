@@ -1,9 +1,31 @@
+x-dind-accessor-environment: &dind-accessor-environment
+  # https://docs.docker.jp/compose/reference/envvars.html#docker-host
+  # when jenkins controller executes docker pipeline, it connects to `docker` 2376 port with mTLS.
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_CERT_PATH: /certs/client
+  DOCKER_TLS_VERIFY: 1 
+
+x-jenkins-ssh-agent-definition: &jenkins-ssh-agent-definition
+  # https://hub.docker.com/r/jenkins/ssh-agent
+  build:
+    context: ./jenkins-ssh-agent
+  image: jenkins/ssh-agent:latest-jdk25
+  expose:
+    - "22"
+  environment:
+    <<: *dind-accessor-environment
+    # jenkins/ssh-agent container automatically registers JENKINS_AGENT_SSH_PUBKEY to `/home/jenkins/.ssh/authorized_keys` on startup
+    JENKINS_AGENT_SSH_PUBKEY: ${JENKINS_AGENT_SSH_PUBKEY}
+  depends_on: 
+    - dind-runner
+  networks:
+    - jenkins-network
+
 services:
   jenkins-controller:
     build:
       # https://docs.docker.com/reference/compose-file/build/#context
       context: ./jenkins-controller
-      dockerfile: Dockerfile
     image: jenkins-controller-image
     container_name: jenkins-controller-container
     ports:
@@ -14,14 +36,9 @@ services:
       - jenkins-docker-certs:/certs/client:ro
     user: jenkins
     environment:
-      # https://docs.docker.jp/compose/reference/envvars.html#docker-host
-      # when jenkins controller executes docker pipeline, it connects to `docker` 2376 port with mTLS.
-      - DOCKER_HOST=tcp://docker:2376
-      - DOCKER_CERT_PATH=/certs/client
-      - DOCKER_TLS_VERIFY=1
+      <<: *dind-accessor-environment
     depends_on: 
       - dind-runner
-
     networks:
       - jenkins-network
 
@@ -35,6 +52,7 @@ services:
     volumes:
       - ./jenkins-controller-data:/var/jenkins_home
       - jenkins-docker-certs:/certs/client
+      - jenkins-ssh-agent-volume:/home/jenkins/agent
     environment:
       # https://hub.docker.com/_/docker#tls
       # dind image creates TLS certificates in DOCKER_TLS_CERTDIR
@@ -44,9 +62,27 @@ services:
         aliases:
           - docker # for DOCKER_HOST=tcp://docker:2376 name resolver
 
+  jenkins-ssh-agent1:
+    <<: *jenkins-ssh-agent-definition
+    volumes:
+      # ssh-agent1 上で docker pipeline を実行するには
+      # - dind の docker.socket へ通信する
+      # - dind と volume を /home/jenkins/agent で共有する
+      # 必要がある
+      # その結果 ssh-agent1 と ssh-agent2 両方で docker pipeline を実行しようとすると
+      # dind 上の volume で jenkins-ssh-agent-volume{1,2}: /home/jenkins/agent とする必要があり、不可能となる
+      # よって dind を利用して複数の ssh-agent コンテナで docker pipeline は実行できない
+      - jenkins-ssh-agent-volume:/home/jenkins/agent
+      - jenkins-docker-certs:/certs/client:ro
+  jenkins-ssh-agent2:
+    <<: *jenkins-ssh-agent-definition
+    volumes:
+      - jenkins-docker-certs:/certs/client:ro
+
 networks:
   jenkins-network:
     driver: bridge
 
 volumes:
   jenkins-docker-certs:
+  jenkins-ssh-agent-volume:
