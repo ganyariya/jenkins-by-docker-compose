@@ -1,5 +1,4 @@
-# ref: https://www.jenkins.io/doc/book/installing/docker/#on-macos-and-linux
-FROM jenkins/jenkins:lts-jdk21
+FROM jenkins/ssh-agent:latest-jdk25
 
 USER root
 # install docker for docker-workflow plugin
@@ -12,7 +11,3 @@ RUN apt-get update && apt-get install -y lsb-release ca-certificates curl && \
     | tee /etc/apt/sources.list.d/docker.list > /dev/null && \
     apt-get update && apt-get install -y docker-ce-cli && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-
-USER jenkins
-COPY jenkins_plugins.txt /usr/share/jenkins/ref/jenkins_plugins.txt
-RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/jenkins_plugins.txt
