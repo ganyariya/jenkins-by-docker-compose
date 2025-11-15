@@ -1,4 +1,4 @@
-FROM jenkins/ssh-agent:latest-jdk25
+FROM jenkins/inbound-agent:latest-jdk25
 
 USER root
 # install docker for docker-workflow plugin
@@ -13,3 +13,5 @@ RUN apt-get update && apt-get install -y lsb-release ca-certificates curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN gpasswd -a jenkins root
+
+USER jenkins
