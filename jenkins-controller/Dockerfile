@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y lsb-release ca-certificates curl && \
     apt-get update && apt-get install -y docker-ce-cli && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN groupadd -f docker && gpasswd -a jenkins docker
+
 USER jenkins
 COPY jenkins_plugins.txt /usr/share/jenkins/ref/jenkins_plugins.txt
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/jenkins_plugins.txt
