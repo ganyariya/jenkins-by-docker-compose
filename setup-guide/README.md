@@ -31,27 +31,27 @@ cat jenkins-controller-data/secrets/initialAdminPassword
 
 `Manage Jenkins > Nodes > +New Node` を選択します。
 そして SSH Agent Node のための Node 名を設定し Permanent Node として作成しましょう。
-ここでは `jenkins-ssh-agent1-node` という名前にしています。
+ここでは例として `jenkins-ssh-agent1-node` という名前にしています。
 
 ![](./images/04_new_ssh_agent1_node.png)
 
-Credential 以外を設定します。
+先に **Credential 以外** を設定します。
 
-- Number of executers
+- `Number of executers`
   - 該当のノードで並列に実行できるビルド数です
-  - `2` など 1 より大きい数字にして構いません
-- Remote root directory
+  - `2` など、 1 より大きい数字にして構いません
+- `Remote root directory`
   - 必ず `/home/jenkins/agent` を指定します
 - Labels
   - ここに記載したラベルを Pipeline の `agent` 句における指定で利用します
   - 今回の例では `jenkins-ssh-agent1-label` としています
 - Launch method
-  - Launch agents via SSH 
+  - `Launch agents via SSH `
   - Host
     - `jenkins-ssh-agent1` を指定しています
     - compose.yml のサービス名と同じものにしてください
-  - Host Key Verification Strategy
-    - Non Verifying Verification Strategy
+  - `Host Key Verification Strategy`
+    - `Non Verifying Verification Strategy`
 
 ```yaml
   jenkins-ssh-agent1: # Launch method > Host に設定する
@@ -65,9 +65,9 @@ Credential 以外を設定します。
 ![](./images/06_credentials_add.png) 
 
 - Kind
-  - SSH Username with private key
+  - `SSH Username with private key`
 - ID
-  - jenkins-ssh-agent1-ssh-key
+  - `jenkins-ssh-agent1-ssh-key`
   - 好きな ID を入力してください
 - Username
   - 必ず `jenkins` を入力してください
@@ -135,7 +135,7 @@ jenkins-ssh-agent2 サービスに対しても同様の手順で `jenkins-ssh-ag
 
 ### SSH Agent がどういう仕組みで動いているのかの説明
 
-どのように SSH Agent が Pipeline の Agent として動いているかについて説明します。
+補足として、どのように SSH Agent が Pipeline の Agent として動いているかについて説明します。
 
 `generate_ssh_agent_key` によって
 
