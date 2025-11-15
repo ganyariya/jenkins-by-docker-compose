@@ -27,6 +27,10 @@ x-jenkins-inbound-agent-definition: &jenkins-inbound-agent-definition
   depends_on:
     - jenkins-controller
 
+x-jenkins-inbound-agent-base-environment: &jenkins-inbound-agent-base-environment
+  JENKINS_URL: http://jenkins-controller:8080
+  JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+
 services:
   jenkins-controller:
     build:
@@ -60,10 +64,11 @@ services:
   jenkins-inbound-agent1:
     <<: *jenkins-inbound-agent-definition
     environment:
-      JENKINS_URL: http://jenkins-controller:8080
+      <<: *jenkins-inbound-agent-base-environment
+      # curl -sO http://localhost:8080/jnlpJars/agent.jar java -jar agent.jar -url http://localhost:8080/ -secret JENKINS_INBOUND_AGENT1_SECRET -name JENKINS_INBOUND_AGENT1_NAME -webSocket -workDir "/home/jenkins/agent"
+      # You need to specify the same `-secret` and `-name` arguments as the like above command, shown under `Run from agent command line: (Unix)` on the Jenkins Web Console node status page
       JENKINS_SECRET: ${JENKINS_INBOUND_AGENT1_SECRET}
-      JENKINS_AGENT_NAME: jenkins-inbound-agent1-node
-      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+      JENKINS_AGENT_NAME: ${JENKINS_INBOUND_AGENT1_NAME}
 
 networks:
   jenkins-network:
