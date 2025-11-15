@@ -1,4 +1,6 @@
-# jenkins-by-docker-compose
+# 🚀 jenkins-by-docker-compose
+
+📖📖📖 **Please also read [Setup Guide](./setup-guide/README.md) when use this repository!** 📖📖📖 
 
 This is a sample for building a Jenkins environment using docker compose.
 You can create the following Jenkins environment:
@@ -12,7 +14,7 @@ You can create the following Jenkins environment:
 - Jenkins SSH Agent
 - Jenkins Inbound TCP/WebSocket Agent
 
-## Initial Setup
+## 🚀 Initial Setup
 
 ```bash
 git clone https://github.com/ganyariya/jenkins-by-docker-compose
@@ -45,10 +47,10 @@ docker compose up -d
 After `docker compose up -d` completes, open `http://localhost:8080`.
 Jenkins should be running.
 
-From here, you'll perform various configurations using the Jenkins Web Console.
-Please refer to the [Setup Guide](./setup-guide/README.md).
+**From here, you'll perform various configurations using the Jenkins Web Console.**   
+**Please refer to the [Setup Guide](./setup-guide/README.md).**
 
-## Tested Environment
+## 🚀 Tested Environment
 
 | environment            | status |
 | ---------------------- | ------ |
