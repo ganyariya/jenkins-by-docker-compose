@@ -12,6 +12,20 @@ x-jenkins-ssh-agent-definition: &jenkins-ssh-agent-definition
     JENKINS_AGENT_SSH_PUBKEY: ${JENKINS_AGENT_SSH_PUBKEY}
   networks:
     - jenkins-network
+  depends_on:
+    - jenkins-controller
+
+x-jenkins-inbound-agent-definition: &jenkins-inbound-agent-definition
+  # https://hub.docker.com/r/jenkins/inbound-agent
+  build:
+    context: ./jenkins-inbound-agent
+  image: jenkins-inbound-agent-image
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  networks:
+    - jenkins-network
+  depends_on:
+    - jenkins-controller
 
 services:
   jenkins-controller:
@@ -29,6 +43,12 @@ services:
       # jenkins-controller-container calls api to docker daemon of host machine, via /var/run/docker.sock
       - /var/run/docker.sock:/var/run/docker.sock
     user: jenkins
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/login"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     networks:
       - jenkins-network
 
@@ -36,6 +56,14 @@ services:
     <<: *jenkins-ssh-agent-definition
   jenkins-ssh-agent2:
     <<: *jenkins-ssh-agent-definition
+
+  jenkins-inbound-agent1:
+    <<: *jenkins-inbound-agent-definition
+    environment:
+      JENKINS_URL: http://jenkins-controller:8080
+      JENKINS_SECRET: ${JENKINS_INBOUND_AGENT1_SECRET}
+      JENKINS_AGENT_NAME: jenkins-inbound-agent1-node
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
 
 networks:
   jenkins-network:
