@@ -13,7 +13,10 @@ RUN apt-get update && apt-get install -y lsb-release ca-certificates curl && \
     apt-get update && apt-get install -y docker-ce-cli && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN groupadd -f docker && gpasswd -a jenkins docker
+# On Docker Desktop for Mac, `/var/run/docker.sock` permission of container is root user & root group.
+# Therefore, jenkins user cannot use `/var/run/docker.sock` in docker pipeline plugin.
+# So, jenkins user is joined to root group.
+RUN gpasswd -a jenkins root
 
 USER jenkins
 COPY jenkins_plugins.txt /usr/share/jenkins/ref/jenkins_plugins.txt
