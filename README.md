@@ -1,12 +1,11 @@
-
 # jenkins-by-docker-compose
 
-docker compose を利用して jenkins 環境を構築するサンプルです。   
-下記に示す Jenkins 環境が作成できます。
+This is a sample for building a Jenkins environment using docker compose.
+You can create the following Jenkins environment:
 
 - Jenkins Controller
-  - 好きなプラグインを `jenkins_plugins.txt` からインストールできます
-  - デフォルトの `jenkins_plugins.txt` では以下のプラグインをインストールします
+  - You can install your favorite plugins from `jenkins_plugins.txt`
+  - The default `jenkins_plugins.txt` installs the following plugins:
     - BlueOcean
     - Job DSL
     - Docker Pipeline
@@ -20,7 +19,7 @@ git clone https://github.com/ganyariya/jenkins-by-docker-compose
 cd jenkins-by-docker-compose
 ```
 
-もし最初からインストールしたい jenkins plugins があるのであれば `jenkins-controller/jenkins_plugins.txt` にプラグイン名を追加してください。
+If you have Jenkins plugins you want to install from the beginning, add the plugin names to `jenkins-controller/jenkins_plugins.txt`.
 
 ```bash
 cat jenkins-controller/jenkins_plugins.txt
@@ -33,7 +32,7 @@ docker-workflow
 # please write your favorite jenkins plugins below, when docker compose build
 ```
 
-続いて SSH agent ノードと接続するための ssh key を生成し、 image をビルドしたうえで各種サービスを起動します。
+Next, generate the ssh key for connecting with SSH agent nodes, build the images, and start the services.
 
 ```bash
 # generate ssh key & create .env file
@@ -43,13 +42,13 @@ sh generate_ssh_key.sh
 docker compose up -d
 ```
 
-`docker compose up -d` が終わったら `http://localhost:8080` を開いてください。   
-Jenkins が起動しているはずです。
+After `docker compose up -d` completes, open `http://localhost:8080`.
+Jenkins should be running.
 
-ここから Jenkins Web Console を利用した各種設定を行っていきます。    
-[Setup Guide](./setup-guide/README.md) を参照してください。
+From here, you'll perform various configurations using the Jenkins Web Console.
+Please refer to the [Setup Guide](./setup-guide/README.md).
 
-## 動作確認環境
+## Tested Environment
 
 | environment            | status |
 | ---------------------- | ------ |
