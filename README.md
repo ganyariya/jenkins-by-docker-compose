@@ -23,7 +23,8 @@ cd jenkins-by-docker-compose
 もし最初からインストールしたい jenkins plugins があるのであれば `jenkins-controller/jenkins_plugins.txt` にプラグイン名を追加してください。
 
 ```bash
-cat blueocean
+cat jenkins-controller/jenkins_plugins.txt
+blueocean
 # https://plugins.jenkins.io/job-dsl/
 job-dsl
 # https://docs.cloudbees.com/docs/cloudbees-ci/latest/pipelines/docker-workflow
@@ -32,7 +33,7 @@ docker-workflow
 # please write your favorite jenkins plugins below, when docker compose build
 ```
 
-SSH agent ノードと接続するための ssh key を生成し、 image をビルドしたうえで各種サービスを起動します。
+続いて SSH agent ノードと接続するための ssh key を生成し、 image をビルドしたうえで各種サービスを起動します。
 
 ```bash
 # generate ssh key & create .env file
@@ -53,4 +54,3 @@ Jenkins が起動しているはずです。
 | environment            | status |
 | ---------------------- | ------ |
 | Docker Desktop for Mac | ✅️      |
-
