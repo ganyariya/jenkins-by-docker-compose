@@ -13,7 +13,8 @@ x-jenkins-ssh-agent-definition: &jenkins-ssh-agent-definition
   networks:
     - jenkins-network
   depends_on:
-    - jenkins-controller
+    jenkins-controller: 
+      condition: service_healthy
 
 x-jenkins-inbound-agent-definition: &jenkins-inbound-agent-definition
   # https://hub.docker.com/r/jenkins/inbound-agent
@@ -25,7 +26,8 @@ x-jenkins-inbound-agent-definition: &jenkins-inbound-agent-definition
   networks:
     - jenkins-network
   depends_on:
-    - jenkins-controller
+    jenkins-controller: 
+      condition: service_healthy
 
 x-jenkins-inbound-agent-base-environment: &jenkins-inbound-agent-base-environment
   JENKINS_URL: http://jenkins-controller:8080
