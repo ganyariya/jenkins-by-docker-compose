@@ -157,4 +157,56 @@ jenkins-ssh-agent2 サービスに対しても同様の手順で `jenkins-ssh-ag
 あとは Jenkins Web Console 上で設定した `jenkins-ssh-agent1-node` ノードが Private Key を利用して、 ホスト `jenkins-ssh-agent1` へ SSH 接続をリクエストします。
 `jenkins-ssh-agent1` には `JENKINS_AGENT_SSH_PUBKEY: ${JENKINS_AGENT_SSH_PUBKEY}` で公開鍵が登録されているため、 SSH 接続リクエストを受け付けて、以降の SSH 接続が正しくおこなえます。
 
+## Inbound TCP/WebSocket Agent の設定
 
+Inbound Agent の場合、あらかじめ Jenkins Web Console 側での作業が必要となります。
+`jenkins-inbound-agent1-node` というノードを作成していきます。
+
+![](./images/13_inbound_agent1_node.png)
+
+下記画像のように設定しましょう。
+SSH Agent の違いとして `Launch method` が `Launch agent by connecting it to the controller` を選択します。
+
+![](./images/14_inbound_agent1_node_setting.png)
+
+`jenkins-inbound-agent1-node` を開くと下記フォーマットの接続コマンドが利用されます。
+このコマンドを Agent にしたいマシンのシェルで実行すると、「`あなたの Jenkins Agent として働きたいです。Agent として登録してください。識別のための secret と name はこれですよ`」と Jenkins Controller へリクエストを送ります。
+Jenkins Controller はその secret と name が正しければ Agent として登録します。
+
+ただし、今回は `jenkins/inbound-agent` イメージを利用するため下記のコマンドは実行しません。
+docker compose service の環境変数としてこれらの情報を登録し、 inbound-agent コンテナに自動で接続されます。
+
+```bash
+curl -sO http://localhost:8080/jnlpJars/agent.jar
+java -jar agent.jar -url http://localhost:8080/ -secret JENKINS_SECRET -name JENKINS_AGENT_NAME -webSocket -workDir "/home/jenkins/agent"
+```
+
+![](./images/15_inbound_node_index.png)
+
+`.env` を下記のようにしてください。
+
+```env
+JENKINS_AGENT_SSH_PUBKEY=ssh-ed25519 AAAA...
+JENKINS_INBOUND_AGENT1_SECRET=0b6c317...
+JENKINS_INBOUND_AGENT1_NAME=jenkins-inbound-agent1-node
+```
+
+これら .env を設定することで compose.yml の環境変数を通じて inboud-agent コンテナへ引き渡されます。
+
+```yaml
+      # curl -sO http://localhost:8080/jnlpJars/agent.jar java -jar agent.jar -url http://localhost:8080/ -secret JENKINS_INBOUND_AGENT1_SECRET -name JENKINS_INBOUND_AGENT1_NAME -webSocket -workDir "/home/jenkins/agent"
+      # You need to specify the same `-secret` and `-name` arguments as the like above command, shown under `Run from agent command line: (Unix)` on the Jenkins Web Console node status page
+      JENKINS_SECRET: ${JENKINS_INBOUND_AGENT1_SECRET}
+      JENKINS_AGENT_NAME: ${JENKINS_INBOUND_AGENT1_NAME}
+```
+
+環境変数を反映するために下記コマンドを実行して、再度各種コンテナを作成します。
+
+```bash
+docker compose down -v && docker compose up -d
+```
+
+再起動後 `jenkins-inbound-agent1-node` が `Agent is connected` になっていれば問題ありません。
+`TestJob` を再度実行し、正しく Job が実行できるか確認してください。
+
+![](./images/16_inbound_agent1_connected.png)
