@@ -3,3 +3,5 @@ blueocean
 job-dsl
 # https://docs.cloudbees.com/docs/cloudbees-ci/latest/pipelines/docker-workflow
 docker-workflow
+
+# please write your favorite jenkins plugins below, when docker compose build
